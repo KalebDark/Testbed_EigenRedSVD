@@ -83,6 +83,32 @@ namespace RedSVD {
 		}
 	}
 
+	template<typename MatrixType>
+	inline void ModifiedGramSchmidt(MatrixType& mat) {
+		typedef typename MatrixType::Scalar Scalar;
+		typedef typename MatrixType::Index Index;
+
+		static const Scalar EPS(static_cast<Scalar>(1E-4));
+
+		for (Index i = 0; i < mat.cols(); ++i) {
+
+
+			for (Index j = 0; j < i; ++j) {
+				Scalar r = mat.col(i).dot(mat.col(j));
+				mat.col(i) -= r * mat.col(j);
+			}
+
+			Scalar norm = mat.col(i).norm();
+			if (norm < EPS) {
+				for (Index k = i; k < mat.cols(); ++k) {
+					mat.col(k).setZero();
+				}
+				return;
+			}
+			mat.col(i) /= norm;
+		}
+	}
+
 	// https://en.wikipedia.org/wiki/Singular_value_decomposition
 	template<typename _MatrixType>
 	class RedSVD {
@@ -114,7 +140,7 @@ namespace RedSVD {
 
 			// Gaussian Random Matrix for A^T
 			DenseMatrix O(A.rows(), r);
-			SampleGaussian(O);
+			SampleGaussian(O);w
 
 			// Compute Sample Matrix of A^T
 			DenseMatrix Y = A.transpose() * O;
